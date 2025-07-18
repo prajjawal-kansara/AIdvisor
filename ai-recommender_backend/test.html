@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Recommender</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: #0d1117;
+      color: #c9d1d9;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 700px;
+      background: #161b22;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #58a6ff;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    textarea {
+      width: 100%;
+      height: 100px;
+      padding: 12px;
+      font-size: 16px;
+      border: 1px solid #30363d;
+      background: #0d1117;
+      color: #c9d1d9;
+      border-radius: 6px;
+      resize: vertical;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      background: #238636;
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background: #2ea043;
+    }
+
+    button:disabled {
+      background: #444c56;
+      cursor: not-allowed;
+    }
+
+    .examples {
+      margin-top: 20px;
+    }
+
+    .examples h3 {
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .example {
+      display: inline-block;
+      background: #21262d;
+      padding: 6px 10px;
+      margin: 4px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      color: #58a6ff;
+    }
+
+    .example:hover {
+      background: #30363d;
+    }
+
+    .results {
+      margin-top: 25px;
+      padding: 20px;
+      background: #1c2128;
+      border-left: 4px solid #58a6ff;
+      border-radius: 6px;
+    }
+
+    .recommendation {
+      background: #0d1117;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+    }
+
+    .tool-name {
+      font-size: 18px;
+      font-weight: 600;
+      color: #58a6ff;
+      margin-bottom: 5px;
+    }
+
+    .match-score {
+      display: inline-block;
+      background: #2ea043;
+      padding: 2px 8px;
+      border-radius: 3px;
+      font-size: 12px;
+      margin-bottom: 8px;
+      color: white;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #58a6ff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 AI Recommender</h1>
+
+    <div class="input-group">
+      <label for="userPrompt">What do you want an AI tool to help with?</label>
+      <textarea id="userPrompt" placeholder="Example: I need an AI tool to create marketing images for Instagram"></textarea>
+    </div>
+
+    <button onclick="getRecommendations()" id="submitBtn">Get AI Recommendations</button>
+
+    <div class="examples">
+      <h3>Examples:</h3>
+      <div class="example" onclick="setExample('I want an AI tool to generate content for my social media.')">Social Media</div>
+      <div class="example" onclick="setExample('I need help automating business workflows.')">Automation</div>
+      <div class="example" onclick="setExample('I need AI for customer support chatbots.')">Chatbots</div>
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+    function setExample(text) {
+      document.getElementById('userPrompt').value = text;
+    }
+
+    async function getRecommendations() {
+      const userPrompt = document.getElementById('userPrompt').value.trim();
+      const resultsDiv = document.getElementById('results');
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (!userPrompt) {
+        resultsDiv.innerHTML = '<div class="results">Please describe what you want help with.</div>';
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Loading...';
+      resultsDiv.innerHTML = '<div class="loading"><div class="spinner"></div><p>Analyzing your needs...</p></div>';
+
+      try {
+        const response = await fetch('http://localhost:3000/api/recommend', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ userPrompt })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          displayResults(data);
+        } else {
+          resultsDiv.innerHTML = `<div class="results">Error: ${data.error}</div>`;
+        }
+      } catch (error) {
+        resultsDiv.innerHTML = `<div class="results">Error: ${error.message}</div>`;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Get AI Recommendations';
+      }
+    }
+
+    function displayResults(data) {
+      const resultsDiv = document.getElementById('results');
+      let html = '<div class="results">';
+      html += `<h3>${data.summary}</h3>`;
+
+      data.recommendations.forEach(tool => {
+        html += `
+          <div class="recommendation">
+            <div class="tool-name">${tool.toolName}</div>
+            <div class="match-score">${tool.matchScore}% Match</div>
+            <p><strong>Why:</strong> ${tool.reasoning}</p>
+            <p><strong>Best for:</strong> ${tool.bestFor}</p>
+            <p><strong>Consider:</strong> ${tool.considerations}</p>
+            ${tool.toolDetails ? `
+              <p><strong>Pricing:</strong> ${tool.toolDetails.pricing}</p>
+              <p><strong>Category:</strong> ${tool.toolDetails.category}</p>
+            ` : ''}
+          </div>
+        `;
+      });
+
+      html += `<p><strong>Next Steps:</strong> ${data.nextSteps}</p>`;
+      html += `<p style="font-size: 13px; color: #8b949e;">Analyzed ${data.totalToolsConsidered} tools</p>`;
+      html += '</div>';
+
+      resultsDiv.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
