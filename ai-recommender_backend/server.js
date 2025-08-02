@@ -1,169 +1,255 @@
 const express = require('express');
 const cors = require('cors');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const OpenAI = require('openai');
 require('dotenv').config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+// Initialize OpenAI
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY
+});
 
-// AI Tools Database
+// Enhanced AI Tools Database with more comprehensive data
 const aiToolsDatabase = [
   {
     id: 1,
     name: "ChatGPT",
-    category: "Conversational AI",
-    description: "Advanced conversational AI for text generation, coding, and problem-solving",
-    pricing: "$20/month for Plus",
-    features: ["Text generation", "Code assistance", "Problem solving", "Creative writing"],
-    useCases: ["Customer support", "Content creation", "Programming help", "Research"],
-    techLevel: "beginner-advanced",
-    pros: ["Versatile", "User-friendly", "Strong reasoning"],
-    cons: ["Usage limits", "Can be expensive for heavy use"]
+    vendor: "OpenAI",
+    description: "Advanced conversational AI for text generation, coding, problem-solving, and creative writing with human-like responses.",
+    categories: ["Conversational AI", "Text Generation", "Code Assistance", "Creative Writing"],
+    use_cases: ["Customer Support", "Content Creation", "Programming Help", "Research Assistant", "Education", "Writing Enhancement"],
+    pricing: {
+      has_free_tier: true,
+      starting_price: 20,
+      pricing_model: "subscription"
+    },
+    features: ["Natural Language Processing", "Code Generation", "Multi-language Support", "Context Awareness", "Creative Writing", "Problem Solving"],
+    limitations: ["Usage Limits on Free Tier", "Knowledge Cutoff Date", "Cannot Browse Internet in Real-time"],
+    api_available: true,
+    rating: 4.6,
+    reviews_count: 12500,
+    average_response_time: "2-5 seconds",
+    techLevel: "beginner-advanced"
   },
   {
     id: 2,
-    name: "Midjourney",
-    category: "Image Generation",
-    description: "AI-powered image generation from text prompts",
-    pricing: "$10-60/month",
-    features: ["Text-to-image", "Style variations", "High resolution", "Commercial use"],
-    useCases: ["Marketing visuals", "Art creation", "Prototyping", "Social media"],
-    techLevel: "beginner-intermediate",
-    pros: ["High quality images", "Creative styles", "Active community"],
-    cons: ["Discord-based interface", "Limited control"]
+    name: "DALL-E",
+    vendor: "OpenAI",
+    description: "An AI system that creates realistic images and art from natural language descriptions with exceptional quality and creativity.",
+    categories: ["Image Generation", "Creative AI", "Visual Content Creation"],
+    use_cases: ["Marketing Material Creation", "Concept Art", "Content Illustration", "Product Visualization", "Social Media Graphics", "Digital Art"],
+    pricing: {
+      has_free_tier: true,
+      starting_price: 15,
+      pricing_model: "credit-based"
+    },
+    features: ["Text to Image", "Style Customization", "High Resolution Output", "Prompt-based Generation", "Artistic Styles", "Commercial Usage Rights"],
+    limitations: ["Cannot Edit Existing Images", "Limited Understanding of Complex Scenes", "Credit-based System"],
+    api_available: true,
+    rating: 4.5,
+    reviews_count: 8500,
+    average_response_time: "5-15 seconds",
+    techLevel: "beginner-intermediate"
   },
   {
     id: 3,
-    name: "Jasper",
-    category: "Content Creation",
-    description: "AI writing assistant for marketing and business content",
-    pricing: "$49-125/month",
-    features: ["Blog writing", "Ad copy", "Social media", "SEO optimization"],
-    useCases: ["Marketing content", "Blog posts", "Email campaigns", "Social media"],
-    techLevel: "beginner-intermediate",
-    pros: ["Marketing focused", "Templates", "Team collaboration"],
-    cons: ["Higher cost", "Learning curve"]
+    name: "Midjourney",
+    vendor: "Midjourney Inc.",
+    description: "AI-powered image generation platform known for creating stunning, artistic images from text prompts with unique aesthetic styles.",
+    categories: ["Image Generation", "Digital Art", "Creative AI"],
+    use_cases: ["Digital Art Creation", "Marketing Visuals", "Concept Design", "Social Media Content", "Book Illustrations", "Brand Assets"],
+    pricing: {
+      has_free_tier: false,
+      starting_price: 10,
+      pricing_model: "subscription"
+    },
+    features: ["Artistic Style Generation", "High Quality Images", "Community Gallery", "Style Variations", "Upscaling", "Remix Capabilities"],
+    limitations: ["Discord-based Interface", "No Free Tier", "Limited Control Over Details", "Community-visible Creations"],
+    api_available: false,
+    rating: 4.7,
+    reviews_count: 15200,
+    average_response_time: "30-60 seconds",
+    techLevel: "beginner-intermediate"
   },
   {
     id: 4,
     name: "GitHub Copilot",
-    category: "Code Generation",
-    description: "AI pair programmer for code completion and generation",
-    pricing: "$10/month individual, $19/month business",
-    features: ["Code completion", "Function generation", "Multiple languages", "IDE integration"],
-    useCases: ["Software development", "Code review", "Learning programming"],
-    techLevel: "intermediate-advanced",
-    pros: ["IDE integration", "Multiple languages", "Context-aware"],
-    cons: ["Requires programming knowledge", "Subscription based"]
+    vendor: "GitHub (Microsoft)",
+    description: "AI pair programmer that provides intelligent code completions, suggestions, and entire function generation across multiple programming languages.",
+    categories: ["Code Generation", "Developer Tools", "Programming Assistant"],
+    use_cases: ["Software Development", "Code Completion", "Bug Fixing", "Learning Programming", "Code Review", "Documentation"],
+    pricing: {
+      has_free_tier: false,
+      starting_price: 10,
+      pricing_model: "subscription"
+    },
+    features: ["Multi-language Support", "IDE Integration", "Context-aware Suggestions", "Function Generation", "Code Explanation", "Real-time Assistance"],
+    limitations: ["Requires Programming Knowledge", "Subscription Required", "May Suggest Insecure Code", "Limited to Supported IDEs"],
+    api_available: true,
+    rating: 4.4,
+    reviews_count: 9800,
+    average_response_time: "instant",
+    techLevel: "intermediate-advanced"
   },
   {
     id: 5,
-    name: "Runway ML",
-    category: "Video Generation",
-    description: "AI tools for video editing and generation",
-    pricing: "$12-76/month",
-    features: ["Video generation", "Background removal", "Motion tracking", "AI effects"],
-    useCases: ["Video editing", "Content creation", "Film production", "Marketing videos"],
-    techLevel: "intermediate-advanced",
-    pros: ["Professional features", "Video focus", "Creative tools"],
-    cons: ["Steep learning curve", "Resource intensive"]
+    name: "Jasper AI",
+    vendor: "Jasper AI Inc.",
+    description: "Comprehensive AI writing assistant specialized in marketing content, blog posts, and business communications with brand voice customization.",
+    categories: ["Content Creation", "Marketing AI", "Writing Assistant"],
+    use_cases: ["Blog Writing", "Marketing Copy", "Social Media Content", "Email Campaigns", "Product Descriptions", "SEO Content"],
+    pricing: {
+      has_free_tier: true,
+      starting_price: 49,
+      pricing_model: "subscription"
+    },
+    features: ["Brand Voice Training", "SEO Optimization", "Template Library", "Team Collaboration", "Plagiarism Checker", "Multi-language Support"],
+    limitations: ["Higher Cost", "Learning Curve", "Requires Content Strategy Knowledge", "Credit-based Limits"],
+    api_available: true,
+    rating: 4.3,
+    reviews_count: 6700,
+    average_response_time: "3-8 seconds",
+    techLevel: "beginner-intermediate"
   },
   {
     id: 6,
-    name: "Stable Diffusion",
-    category: "Image Generation",
-    description: "Open-source image generation model",
-    pricing: "Free (self-hosted) or $9-49/month (cloud)",
-    features: ["Text-to-image", "Image-to-image", "Inpainting", "Customizable"],
-    useCases: ["Art creation", "Product mockups", "Concept art", "Personal projects"],
-    techLevel: "intermediate-advanced",
-    pros: ["Open source", "Highly customizable", "No usage limits"],
-    cons: ["Technical setup required", "Hardware requirements"]
+    name: "Runway ML",
+    vendor: "Runway AI Inc.",
+    description: "Advanced AI platform for video generation, editing, and creative content creation with cutting-edge machine learning tools.",
+    categories: ["Video Generation", "Video Editing", "Creative AI"],
+    use_cases: ["Video Content Creation", "Film Production", "Marketing Videos", "Social Media Content", "Animation", "Visual Effects"],
+    pricing: {
+      has_free_tier: true,
+      starting_price: 12,
+      pricing_model: "credit-based"
+    },
+    features: ["Text to Video", "Video Editing", "Background Removal", "Motion Tracking", "AI Effects", "Real-time Processing"],
+    limitations: ["Steep Learning Curve", "Resource Intensive", "Limited Free Credits", "Requires High-end Hardware"],
+    api_available: true,
+    rating: 4.2,
+    reviews_count: 4300,
+    average_response_time: "30-120 seconds",
+    techLevel: "intermediate-advanced"
   },
   {
     id: 7,
-    name: "Notion AI",
-    category: "Productivity",
-    description: "AI writing assistant integrated into Notion workspace",
-    pricing: "$8-10/month per user",
-    features: ["Writing assistance", "Summarization", "Translation", "Brainstorming"],
-    useCases: ["Note-taking", "Project management", "Team collaboration", "Documentation"],
-    techLevel: "beginner-intermediate",
-    pros: ["Notion integration", "Productivity focused", "Team features"],
-    cons: ["Requires Notion subscription", "Limited to Notion ecosystem"]
+    name: "Claude",
+    vendor: "Anthropic",
+    description: "AI assistant focused on being helpful, harmless, and honest with exceptional reasoning capabilities and document analysis features.",
+    categories: ["Conversational AI", "Research Assistant", "Document Analysis"],
+    use_cases: ["Research Assistance", "Document Analysis", "Writing Help", "Code Review", "Academic Work", "Complex Reasoning"],
+    pricing: {
+      has_free_tier: true,
+      starting_price: 20,
+      pricing_model: "subscription"
+    },
+    features: ["Long Context Understanding", "Document Processing", "Ethical Reasoning", "Code Analysis", "Research Capabilities", "Safety-focused"],
+    limitations: ["Limited Availability", "Usage Limits", "No Image Generation", "Regional Restrictions"],
+    api_available: true,
+    rating: 4.5,
+    reviews_count: 5600,
+    average_response_time: "2-6 seconds",
+    techLevel: "beginner-advanced"
   },
   {
     id: 8,
-    name: "Murf AI",
-    category: "Voice Generation",
-    description: "AI voice generator for voiceovers and speech synthesis",
-    pricing: "$19-79/month",
-    features: ["Text-to-speech", "Voice cloning", "Multiple languages", "Emotions"],
-    useCases: ["Voiceovers", "Presentations", "E-learning", "Podcasts"],
-    techLevel: "beginner-intermediate",
-    pros: ["Natural voices", "Multiple languages", "Easy to use"],
-    cons: ["Subscription required", "Limited free tier"]
+    name: "Stable Diffusion",
+    vendor: "Stability AI",
+    description: "Open-source image generation model offering high customization and control over image creation without usage restrictions.",
+    categories: ["Image Generation", "Open Source AI", "Creative AI"],
+    use_cases: ["Art Creation", "Product Mockups", "Concept Art", "Personal Projects", "Commercial Use", "Research"],
+    pricing: {
+      has_free_tier: true,
+      starting_price: 9,
+      pricing_model: "cloud-hosting"
+    },
+    features: ["Open Source", "High Customization", "No Usage Limits", "Fine-tuning Capable", "Multiple Models", "Community Extensions"],
+    limitations: ["Technical Setup Required", "Hardware Requirements", "Learning Curve", "Inconsistent Results"],
+    api_available: true,
+    rating: 4.1,
+    reviews_count: 7200,
+    average_response_time: "10-30 seconds",
+    techLevel: "intermediate-advanced"
   },
   {
     id: 9,
-    name: "Zapier AI",
-    category: "Automation",
-    description: "AI-powered workflow automation",
-    pricing: "$19.99-599/month",
-    features: ["Workflow automation", "AI triggers", "Integration", "Smart suggestions"],
-    useCases: ["Business automation", "Data processing", "Marketing automation", "Productivity"],
-    techLevel: "beginner-intermediate",
-    pros: ["Extensive integrations", "No-code", "AI-powered"],
-    cons: ["Can be expensive", "Complex workflows need learning"]
+    name: "Murf AI",
+    vendor: "Murf AI",
+    description: "Professional AI voice generator creating natural-sounding voiceovers and speech synthesis in multiple languages and emotions.",
+    categories: ["Voice Generation", "Text-to-Speech", "Audio AI"],
+    use_cases: ["Voiceovers", "Presentations", "E-learning", "Podcasts", "Marketing Videos", "Audiobooks"],
+    pricing: {
+      has_free_tier: true,
+      starting_price: 19,
+      pricing_model: "subscription"
+    },
+    features: ["Natural Voice Synthesis", "Multiple Languages", "Emotion Control", "Voice Cloning", "Background Music", "Commercial Rights"],
+    limitations: ["Subscription Required", "Limited Free Tier", "Voice Licensing Restrictions", "Internet Required"],
+    api_available: true,
+    rating: 4.3,
+    reviews_count: 3400,
+    average_response_time: "5-15 seconds",
+    techLevel: "beginner-intermediate"
   },
   {
     id: 10,
-    name: "Anthropic Claude",
-    category: "Conversational AI",
-    description: "AI assistant focused on being helpful, harmless, and honest",
-    pricing: "$20/month for Pro",
-    features: ["Conversational AI", "Document analysis", "Code assistance", "Research"],
-    useCases: ["Research assistance", "Writing help", "Analysis", "Problem solving"],
-    techLevel: "beginner-advanced",
-    pros: ["Strong reasoning", "Document handling", "Ethical focus"],
-    cons: ["Limited availability", "Usage limits"]
+    name: "Zapier AI",
+    vendor: "Zapier Inc.",
+    description: "Intelligent workflow automation platform that connects apps and automates repetitive tasks with AI-powered triggers and actions.",
+    categories: ["Automation", "Workflow AI", "Business Tools"],
+    use_cases: ["Business Automation", "Data Processing", "Marketing Automation", "CRM Integration", "Task Management", "Data Synchronization"],
+    pricing: {
+      has_free_tier: true,
+      starting_price: 19.99,
+      pricing_model: "subscription"
+    },
+    features: ["App Integrations", "AI Triggers", "No-code Automation", "Smart Suggestions", "Team Collaboration", "Advanced Logic"],
+    limitations: ["Can Be Expensive", "Complex Workflows Need Learning", "Dependent on Third-party APIs", "Limited Free Tier"],
+    api_available: true,
+    rating: 4.4,
+    reviews_count: 11200,
+    average_response_time: "instant",
+    techLevel: "beginner-intermediate"
   }
 ];
 
-// NLP Processing Functions
+// Enhanced NLP Processing with OpenAI
 async function extractUserIntent(userPrompt) {
   const prompt = `
-    Analyze the following user request and extract key information in JSON format:
+    Analyze the following user request and extract key information. Return ONLY a valid JSON object with these exact fields:
     
     User Request: "${userPrompt}"
     
-    Extract and return ONLY a JSON object with these fields:
     {
       "intent": "primary goal/task they want to accomplish",
-      "category": "type of AI tool needed (e.g., 'image generation', 'text generation', 'code assistance', 'automation', etc.)",
+      "categories": ["array of AI tool categories needed"],
       "budget": "budget range mentioned or 'not specified'",
       "techLevel": "technical expertise level (beginner/intermediate/advanced) or 'not specified'",
-      "useCase": "specific use case or application",
+      "useCases": ["array of specific use cases mentioned"],
       "features": ["array of specific features mentioned"],
       "industry": "industry/domain mentioned or 'general'",
-      "urgency": "timeline mentioned or 'not specified'"
+      "urgency": "timeline mentioned or 'not specified'",
+      "preferences": ["any specific preferences mentioned"]
     }
     
-    Be concise and specific. If information isn't provided, use "not specified".
+    Be specific and extract multiple categories/use cases if mentioned. If information isn't provided, use "not specified" or empty arrays.
   `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.1,
+      max_tokens: 500
+    });
+
+    const content = response.choices[0].message.content.trim();
     
     // Extract JSON from response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
@@ -171,13 +257,14 @@ async function extractUserIntent(userPrompt) {
     // Fallback parsing
     return {
       intent: "general AI assistance",
-      category: "not specified",
+      categories: [],
       budget: "not specified",
       techLevel: "not specified",
-      useCase: "general",
+      useCases: [],
       features: [],
       industry: "general",
-      urgency: "not specified"
+      urgency: "not specified",
+      preferences: []
     };
   } catch (error) {
     console.error('Error extracting intent:', error);
@@ -186,54 +273,92 @@ async function extractUserIntent(userPrompt) {
 }
 
 function filterAITools(intent) {
-  const { category, budget, techLevel, useCase, features } = intent;
+  const { categories, useCases, techLevel, budget, features } = intent;
   
   let filteredTools = [...aiToolsDatabase];
-  
-  // Filter by category
-  if (category !== 'not specified') {
-    filteredTools = filteredTools.filter(tool => 
-      tool.category.toLowerCase().includes(category.toLowerCase()) ||
-      tool.useCases.some(uc => uc.toLowerCase().includes(category.toLowerCase()))
-    );
+  let scores = new Map();
+
+  // Initialize scores
+  filteredTools.forEach(tool => scores.set(tool.id, 0));
+
+  // Score by categories
+  if (categories.length > 0) {
+    filteredTools.forEach(tool => {
+      categories.forEach(category => {
+        if (tool.categories.some(cat => cat.toLowerCase().includes(category.toLowerCase()))) {
+          scores.set(tool.id, scores.get(tool.id) + 30);
+        }
+      });
+    });
   }
-  
-  // Filter by use case
-  if (useCase !== 'general' && useCase !== 'not specified') {
-    filteredTools = filteredTools.filter(tool =>
-      tool.useCases.some(uc => uc.toLowerCase().includes(useCase.toLowerCase())) ||
-      tool.description.toLowerCase().includes(useCase.toLowerCase())
-    );
+
+  // Score by use cases
+  if (useCases.length > 0) {
+    filteredTools.forEach(tool => {
+      useCases.forEach(useCase => {
+        if (tool.use_cases.some(uc => uc.toLowerCase().includes(useCase.toLowerCase()))) {
+          scores.set(tool.id, scores.get(tool.id) + 25);
+        }
+      });
+    });
   }
-  
-  // Filter by technical level
+
+  // Score by technical level
   if (techLevel !== 'not specified') {
-    filteredTools = filteredTools.filter(tool =>
-      tool.techLevel.includes(techLevel)
-    );
+    filteredTools.forEach(tool => {
+      if (tool.techLevel.includes(techLevel)) {
+        scores.set(tool.id, scores.get(tool.id) + 15);
+      }
+    });
   }
-  
-  // Filter by features
+
+  // Score by features
   if (features.length > 0) {
-    filteredTools = filteredTools.filter(tool =>
-      features.some(feature =>
-        tool.features.some(tf => tf.toLowerCase().includes(feature.toLowerCase()))
-      )
-    );
+    filteredTools.forEach(tool => {
+      features.forEach(feature => {
+        if (tool.features.some(tf => tf.toLowerCase().includes(feature.toLowerCase()))) {
+          scores.set(tool.id, scores.get(tool.id) + 20);
+        }
+      });
+    });
   }
-  
-  return filteredTools;
+
+  // Score by pricing preferences
+  if (budget !== 'not specified') {
+    const budgetNum = parseInt(budget.replace(/[^0-9]/g, ''));
+    if (!isNaN(budgetNum)) {
+      filteredTools.forEach(tool => {
+        if (tool.pricing.has_free_tier) {
+          scores.set(tool.id, scores.get(tool.id) + 10);
+        }
+        if (tool.pricing.starting_price <= budgetNum) {
+          scores.set(tool.id, scores.get(tool.id) + 15);
+        }
+      });
+    }
+  }
+
+  // Sort by score and return top tools
+  const sortedTools = filteredTools
+    .map(tool => ({ ...tool, score: scores.get(tool.id) }))
+    .sort((a, b) => b.score - a.score)
+    .filter(tool => tool.score > 0);
+
+  return sortedTools.length > 0 ? sortedTools : filteredTools.slice(0, 5);
 }
 
-async function generateRecommendations(userPrompt, intent, filteredTools) {
-  const toolsData = filteredTools.map(tool => ({
+async function generateDetailedRecommendations(userPrompt, intent, filteredTools) {
+  const toolsData = filteredTools.slice(0, 5).map(tool => ({
     name: tool.name,
-    category: tool.category,
+    vendor: tool.vendor,
     description: tool.description,
+    categories: tool.categories,
+    use_cases: tool.use_cases,
     pricing: tool.pricing,
-    pros: tool.pros,
-    cons: tool.cons,
-    useCases: tool.useCases
+    features: tool.features,
+    limitations: tool.limitations,
+    rating: tool.rating,
+    techLevel: tool.techLevel
   }));
 
   const prompt = `
@@ -243,38 +368,50 @@ async function generateRecommendations(userPrompt, intent, filteredTools) {
     
     From these AI tools: ${JSON.stringify(toolsData)}
     
-    Provide personalized recommendations in this JSON format:
+    Provide detailed recommendations in this JSON format:
     {
       "recommendations": [
         {
           "toolName": "tool name",
-          "matchScore": "percentage (0-100)",
-          "reasoning": "why this tool fits their needs",
-          "bestFor": "what this tool excels at for their use case",
-          "considerations": "things to keep in mind"
+          "matchScore": number (0-100),
+          "reasoning": "detailed explanation why this tool fits their needs",
+          "bestFor": "what this tool excels at for their specific use case",
+          "considerations": "important things to keep in mind",
+          "recommendedPlan": "which pricing tier to start with",
+          "learningCurve": "time investment needed",
+          "alternatives": "brief mention of similar tools"
         }
       ],
-      "summary": "brief summary of recommendations",
-      "nextSteps": "suggested next steps for the user"
+      "summary": "comprehensive summary of recommendations with key insights",
+      "nextSteps": "specific actionable next steps for the user",
+      "budgetConsiderations": "budget-related advice",
+      "implementationOrder": "suggested order to try/implement these tools"
     }
     
-    Rank by relevance (max 5 tools). Be conversational and helpful.
+    Provide exactly 3-5 tools ranked by relevance. Be detailed and practical.
   `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const response = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [{ role: "user", content: prompt }],
+      temperature: 0.3,
+      max_tokens: 1500
+    });
+
+    const content = response.choices[0].message.content.trim();
     
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       return JSON.parse(jsonMatch[0]);
     }
     
     return {
       recommendations: [],
-      summary: "I couldn't generate specific recommendations, but the filtered tools above should be helpful.",
-      nextSteps: "Try refining your requirements or ask for more specific help."
+      summary: "I couldn't generate specific recommendations, but the filtered tools should be helpful.",
+      nextSteps: "Try refining your requirements or ask for more specific help.",
+      budgetConsiderations: "Consider free tiers first to test functionality.",
+      implementationOrder: "Start with the highest-rated tools that match your use case."
     };
   } catch (error) {
     console.error('Error generating recommendations:', error);
@@ -293,7 +430,7 @@ app.post('/api/recommend', async (req, res) => {
 
     console.log('Processing request:', userPrompt);
     
-    // Step 1: Extract intent using NLP
+    // Step 1: Extract intent using OpenAI
     const intent = await extractUserIntent(userPrompt);
     if (!intent) {
       return res.status(500).json({ error: 'Failed to process user intent' });
@@ -301,18 +438,31 @@ app.post('/api/recommend', async (req, res) => {
     
     console.log('Extracted intent:', intent);
     
-    // Step 2: Filter AI tools based on intent
+    // Step 2: Filter and score AI tools based on intent
     const filteredTools = filterAITools(intent);
     
-    // Step 3: Generate personalized recommendations
-    const recommendations = await generateRecommendations(userPrompt, intent, filteredTools);
+    // Step 3: Generate detailed recommendations
+    const recommendations = await generateDetailedRecommendations(userPrompt, intent, filteredTools);
     
-    // Step 4: Combine with tool details
+    // Step 4: Combine with full tool details
     const detailedRecommendations = recommendations.recommendations.map(rec => {
       const toolDetails = aiToolsDatabase.find(tool => tool.name === rec.toolName);
       return {
         ...rec,
-        toolDetails
+        toolDetails: toolDetails ? {
+          name: toolDetails.name,
+          vendor: toolDetails.vendor,
+          description: toolDetails.description,
+          categories: toolDetails.categories,
+          use_cases: toolDetails.use_cases,
+          pricing: toolDetails.pricing,
+          features: toolDetails.features,
+          limitations: toolDetails.limitations,
+          api_available: toolDetails.api_available,
+          rating: toolDetails.rating,
+          reviews_count: toolDetails.reviews_count,
+          average_response_time: toolDetails.average_response_time
+        } : null
       };
     });
     
@@ -322,25 +472,30 @@ app.post('/api/recommend', async (req, res) => {
       recommendations: detailedRecommendations,
       summary: recommendations.summary,
       nextSteps: recommendations.nextSteps,
-      totalToolsConsidered: filteredTools.length
+      budgetConsiderations: recommendations.budgetConsiderations,
+      implementationOrder: recommendations.implementationOrder,
+      totalToolsConsidered: filteredTools.length,
+      processingTime: new Date().toISOString()
     });
     
   } catch (error) {
     console.error('Error in recommendation endpoint:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    res.status(500).json({ error: 'Internal server error', details: error.message });
   }
 });
 
-// Get all AI tools
+// Get all AI tools with enhanced format
 app.get('/api/tools', (req, res) => {
   res.json({
     success: true,
     tools: aiToolsDatabase,
-    total: aiToolsDatabase.length
+    total: aiToolsDatabase.length,
+    categories: [...new Set(aiToolsDatabase.flatMap(tool => tool.categories))],
+    vendors: [...new Set(aiToolsDatabase.map(tool => tool.vendor))]
   });
 });
 
-// Get specific tool by ID
+// Get specific tool by ID with full details
 app.get('/api/tools/:id', (req, res) => {
   const toolId = parseInt(req.params.id);
   const tool = aiToolsDatabase.find(t => t.id === toolId);
@@ -355,17 +510,33 @@ app.get('/api/tools/:id', (req, res) => {
   });
 });
 
-// Search tools by category
+// Search tools by category with enhanced filtering
 app.get('/api/tools/category/:category', (req, res) => {
   const category = req.params.category.toLowerCase();
   const tools = aiToolsDatabase.filter(tool => 
-    tool.category.toLowerCase().includes(category)
+    tool.categories.some(cat => cat.toLowerCase().includes(category))
   );
   
   res.json({
     success: true,
     tools,
-    total: tools.length
+    total: tools.length,
+    category: req.params.category
+  });
+});
+
+// Get tools by use case
+app.get('/api/tools/usecase/:usecase', (req, res) => {
+  const usecase = req.params.usecase.toLowerCase();
+  const tools = aiToolsDatabase.filter(tool => 
+    tool.use_cases.some(uc => uc.toLowerCase().includes(usecase))
+  );
+  
+  res.json({
+    success: true,
+    tools,
+    total: tools.length,
+    usecase: req.params.usecase
   });
 });
 
@@ -373,15 +544,16 @@ app.get('/api/tools/category/:category', (req, res) => {
 app.get('/health', (req, res) => {
   res.json({ 
     success: true, 
-    message: 'AI Recommender API is running',
-    timestamp: new Date().toISOString()
+    message: 'AI Recommender API is running with OpenAI integration',
+    timestamp: new Date().toISOString(),
+    version: '2.0.0'
   });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  res.status(500).json({ error: 'Something went wrong!', details: err.message });
 });
 
 // 404 handler
@@ -390,13 +562,16 @@ app.use((req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log(`AI Recommender API running on port ${PORT}`);
+  console.log(`AI Recommender API v2.0 running on port ${PORT}`);
+  console.log('Enhanced with OpenAI integration and detailed tool information');
   console.log('Available endpoints:');
-  console.log('  POST /api/recommend - Get AI recommendations');
-  console.log('  GET /api/tools - Get all AI tools');
+  console.log('  POST /api/recommend - Get detailed AI recommendations');
+  console.log('  GET /api/tools - Get all AI tools with full details');
   console.log('  GET /api/tools/:id - Get specific tool');
   console.log('  GET /api/tools/category/:category - Get tools by category');
+  console.log('  GET /api/tools/usecase/:usecase - Get tools by use case');
   console.log('  GET /health - Health check');
 });
 
