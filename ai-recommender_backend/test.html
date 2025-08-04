@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +10,9 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
     <style>
         * {
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
@@ -18,7 +20,7 @@
 
         body {
             background: #0a0a0f;
-            background-image: 
+            background-image:
                 radial-gradient(circle at 25% 25%, #1e1b4b 0%, transparent 50%),
                 radial-gradient(circle at 75% 75%, #312e81 0%, transparent 50%),
                 radial-gradient(circle at 50% 50%, #1e293b 0%, transparent 50%);
@@ -58,8 +60,15 @@
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
         }
 
         .pulse-glow {
@@ -67,8 +76,13 @@
         }
 
         @keyframes pulseGlow {
-            from { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-            to { box-shadow: 0 0 40px rgba(139, 92, 246, 0.6); }
+            from {
+                box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+            }
+
+            to {
+                box-shadow: 0 0 40px rgba(139, 92, 246, 0.6);
+            }
         }
 
         .slide-in {
@@ -76,8 +90,15 @@
         }
 
         @keyframes slideIn {
-            from { transform: translateY(30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .scale-in {
@@ -85,8 +106,15 @@
         }
 
         @keyframes scaleIn {
-            from { transform: scale(0.95); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from {
+                transform: scale(0.95);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .card-hover {
@@ -104,8 +132,16 @@
         }
 
         @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
+
+            0%,
+            50% {
+                opacity: 1;
+            }
+
+            51%,
+            100% {
+                opacity: 0;
+            }
         }
 
         .particle {
@@ -116,10 +152,23 @@
         }
 
         @keyframes particle {
-            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+            0% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 1;
+            }
+
+            90% {
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
         }
 
         .loading-bar {
@@ -139,29 +188,19 @@
         }
 
         @keyframes loading {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
+            0% {
+                left: -100%;
+            }
 
-        .glow-border {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .glow-border::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            padding: 2px;
-            background: linear-gradient(45deg, #8b5cf6, #ec4899, #3b82f6, #8b5cf6);
-            border-radius: inherit;
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask-composite: xor;
-            animation: rotate 3s linear infinite;
+            100% {
+                left: 100%;
+            }
         }
 
         @keyframes rotate {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         .stars {
@@ -227,10 +266,11 @@
         }
     </script>
 </head>
+
 <body>
     <!-- Animated Background Particles -->
     <div id="particles" class="fixed inset-0 pointer-events-none z-0"></div>
-    
+
     <div id="root"></div>
 
     <script type="text/babel">
@@ -296,7 +336,7 @@
             };
 
             return (
-                <div 
+                <div
                     className="glass-strong rounded-2xl p-6 card-hover scale-in"
                     style={{ animationDelay: `${index * 0.1}s` }}
                 >
@@ -310,7 +350,7 @@
                                 </div>
                             </div>
                             <p className="text-purple-300 text-sm mb-2">by {tool.vendor}</p>
-                            
+
                             {/* Rating */}
                             {tool.rating && (
                                 <div className="flex items-center space-x-2 mb-3">
@@ -318,7 +358,7 @@
                                         {renderStars(tool.rating)}
                                     </div>
                                     <span className="text-white/70 text-sm">
-                                        {tool.rating} 
+                                        {tool.rating}
                                         {tool.reviewsCount && ` (${tool.reviewsCount.toLocaleString()})`}
                                     </span>
                                 </div>
@@ -380,18 +420,18 @@
                             </h4>
                             <div className="space-y-2 text-sm">
                                 {tool.responseTime && (
-                                    <div className="flex justify-between">
-                                        <span className="text-white/80">Response Time:</span>
-                                        <span className="text-white">{tool.responseTime}</span>
+                                    <div className="text-white">
+                                        <span className="block">Response Time:</span>
+                                        <span className="text-white/60 block">{tool.responseTime}</span>
                                     </div>
                                 )}
                                 <div className="flex justify-between">
-                                    <span className="text-white/70">Use Cases:</span>
-                                    <span className="text-white">{tool.useCases?.length || 0}</span>
+                                    <span className="text-white">Use Cases:</span>
+                                    <span className="text-white/60">{tool.useCases?.length || 0}</span>
                                 </div>
                                 <div className="flex justify-between">
-                                    <span className="text-white/70">Features:</span>
-                                    <span className="text-white">{tool.features?.length || 0}</span>
+                                    <span className="text-white">Features:</span>
+                                    <span className="text-white/60">{tool.features?.length || 0}</span>
                                 </div>
                             </div>
                         </div>
@@ -662,7 +702,7 @@
                     });
 
                     const data = await response.json();
-                    
+
                     if (data.success) {
                         setRecommendations(data);
                     } else {
@@ -683,7 +723,7 @@
             return (
                 <div className="min-h-screen relative">
                     <ParticleSystem />
-                    
+
                     {/* Header */}
                     <header className="relative z-10 pt-8 pb-12">
                         <div className="max-w-7xl mx-auto px-4 text-center">
@@ -694,7 +734,7 @@
                                 </h1>
                             </div>
                             <p className="text-xl md:text-2xl text-white/80 max-w-4xl mx-auto mb-8 leading-relaxed">
-                                Discover the perfect AI tools from the entire <span className="gradient-text font-semibold">ecosystem</span> 
+                                Discover the perfect AI tools from the entire <span className="gradient-text font-semibold">ecosystem</span>
                             </p>
                         </div>
                     </header>
@@ -705,11 +745,10 @@
                             <div className="flex">
                                 <button
                                     onClick={() => setActiveTab('recommend')}
-                                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
-                                        activeTab === 'recommend' 
-                                            ? 'gradient-bg text-white shadow-lg scale-105' 
+                                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${activeTab === 'recommend'
+                                            ? 'gradient-bg text-white shadow-lg scale-105'
                                             : 'text-white/70 hover:text-white hover:bg-white/10'
-                                    }`}
+                                        }`}
                                 >
                                     <i className="fas fa-magic mr-2"></i>
                                     Discover
@@ -719,11 +758,10 @@
                                         setActiveTab('insights');
                                         if (!insights) fetchInsights();
                                     }}
-                                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${
-                                        activeTab === 'insights' 
-                                            ? 'gradient-bg text-white shadow-lg scale-105' 
+                                    className={`flex-1 py-3 px-6 rounded-xl font-semibold transition-all duration-300 ${activeTab === 'insights'
+                                            ? 'gradient-bg text-white shadow-lg scale-105'
                                             : 'text-white/70 hover:text-white hover:bg-white/10'
-                                    }`}
+                                        }`}
                                 >
                                     <i className="fas fa-chart-line mr-2"></i>
                                     Insights
@@ -811,11 +849,10 @@
                                 {/* Recommendations Display */}
                                 {recommendations && !loading && (
                                     <div className="space-y-12 slide-in">
-                                        
+
                                         {/* Executive Summary */}
                                         <div className="glass-strong rounded-3xl p-8">
                                             <h2 className="text-3xl font-bold text-white mb-6 flex items-center">
-                                                <i className="fas fa-lightbulb mr-3 text-yellow-400"></i>
                                                 Executive Summary
                                             </h2>
                                             <div className="prose prose-lg prose-invert max-w-none">
@@ -834,7 +871,7 @@
                                                     {recommendations.recommendations?.length || 0} perfectly matched tools found
                                                 </p>
                                             </div>
-                                            
+
                                             <div className="grid gap-8 lg:grid-cols-2 xl:grid-cols-3">
                                                 {recommendations.recommendations?.map((tool, index) => (
                                                     <ToolCard key={index} tool={tool} index={index} />
@@ -1083,7 +1120,7 @@
                                     AI Discovery Platform
                                 </h3>
                                 <p className="text-white/70 mb-6">
-                                     Real-time tool discovery from the entire AI ecosystem
+                                    Real-time tool discovery from the entire AI ecosystem
                                 </p>
                                 <div className="flex justify-center space-x-8 text-white/60">
                                     <div className="flex items-center">
@@ -1110,4 +1147,5 @@
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
+
 </html>
